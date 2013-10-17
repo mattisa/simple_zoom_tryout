@@ -12,6 +12,8 @@
 // - > Finished.
 
 (function ( $ ) {
+  
+  'use strict';
 
   $.fn.zoom = function( options ) {
 
@@ -147,12 +149,11 @@
 
     this.handleDoubleClick = function (e) {
       
-      var viewport_width = $viewport.width();
-      var viewport_height = $viewport.height(); 
-      
-      var offset_x = $current_layer[0]._offset.left + viewport_width / 2 - e.pageX , 
+      var viewport_width = $viewport.width(),
+          viewport_height = $viewport.height(),
+          offset_x = $current_layer[0]._offset.left + viewport_width / 2 - e.pageX , 
           offset_y = $current_layer[0]._offset.top + viewport_height / 2 - e.pageY   
-      ;
+        ;
     
       _self.changeLayerOffset($current_layer, offset_x, offset_y);
     
@@ -169,7 +170,6 @@
 
 
     this.handleClickZoomIn = function () {
-      console.log('in');
       var next_layer;
 
       if ($layers.length < $current_layer.index()+1) return;
@@ -182,13 +182,11 @@
       $current_layer.show();
 
       _self.changeLayerOffset($current_layer, $current_layer[0]._offset.left, $current_layer[0]._offset.top);
-
     }
+ 
 
+    this.switchLayer = function (layer_from, layer_to) {
 
-    this.handleClickZoomOut = function () {
-    
-     // console.log('out');
     }
 
 
@@ -200,11 +198,13 @@
         next_height = $(next).data('height'),
         next_width = $(next).data('width'), 
         ratio_x = next_width / prev_width, 
-        ratio_y = next_height / prev_height
+        ratio_y = next_height / prev_height,
+        viewport_width = $viewport.width(),
+        viewport_height = $viewport.height()
       ;
       
-      next._offset.left = parseInt( prev._offset.left * ratio_x ); 
-      next._offset.top = parseInt( prev._offset.top * ratio_y ); 
+      next._offset.left = parseInt( prev._offset.left * ratio_x - viewport_width / ratio_x); 
+      next._offset.top = parseInt( prev._offset.top * ratio_y - viewport_height / ratio_y); 
       
       console.log(prev_height, prev_width, next_height, next_width, ratio_x, ratio_y);
     }
