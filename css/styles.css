@@ -25,3 +25,11 @@
   height: 100%;
   width: 100%;
 }
+
+.controls .button {
+  padding: 0.5em;
+  margin-right: 1em;
+  border: 1px solid #dfdfdf;
+  display: inline-block;
+  cursor: pointer;
+}

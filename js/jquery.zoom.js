@@ -23,8 +23,8 @@
       image_base_path: 'images/map_tiles/',
 
       zoom_levels: [
-        // {zoom_level: '20', columns: 31, rows: 17},
-        // {zoom_level: '19', columns: 16, rows: 9},
+        {zoom_level: '20', columns: 31, rows: 17},
+        {zoom_level: '19', columns: 16, rows: 9},
         {zoom_level: '18', columns: 8, rows: 5},
         {zoom_level: '17', columns: 4, rows: 3}
         ]
@@ -32,10 +32,13 @@
 
       $viewport,        // area where map moves
       $touch_area,      // layer top of viewport. this prevents cursor to start drag single images
-      current_layer,    // reference to currently active image layer 
-      supports_transitions = Modernizr.csstransitions // cached boolean that tells if browser supports transitions
-      
+      $layers = [],
+      $current_layer,    // reference to currently active image layer 
+      supports_transitions = Modernizr.csstransitions, // cached boolean that tells if browser supports transitions
+      $control_zoom_in,
+      $control_zoom_out
     ;
+
     this._offset = {top: 0, left:0};  // object that contains offset values for map while dragging is happening
 
     this.build_map = function () {
@@ -44,21 +47,31 @@
   
       // loop all zoom levels and make layers based on those
       for(i = 0; i < zoom_levels; i++) {
-    
+        
+        // get zoom levels settings
         var columns = settings.zoom_levels[i].columns;
         var rows = settings.zoom_levels[i].rows;
-           
+        
+        // build layer
         layer = this.build_layer(i, columns, rows);
          
+       // loop columns 
         for(j = 0; j < columns; j ++) {
+
+          // loop rows
           for(k = 0; k < rows; k ++) {
             layer.append(this.renderImage(i, j, k));  
           }
         }
+
+        // put new layer 
         $viewport.append(layer);
       }
-      $current_layer = $viewport.find('.image-layer:last').show();
+
+      $layers = $viewport.find('.image-layer');
       
+      
+      $current_layer = $layers.filter(':last').show();
     }
 
     this.build_layer = function (zoom_level, columns, rows) {
@@ -67,8 +80,11 @@
         .addClass('image-layer zool-level-' + settings.zoom_levels[zoom_level].zoom_level)
         .attr('data-width', settings.tile_size * columns)
         .attr('data-height', settings.tile_size * rows);
-        
-        return layer;          
+        layer.hide();
+      
+      layer[0]._offset = {top: 0, left: 0};
+   
+      return layer;          
     }
 
 
@@ -90,70 +106,109 @@
       $touch_area = $('<div>').addClass('touch_area');
 
       $viewport.append($touch_area);
+
+      $control_zoom_in = $('.button.in');
+      $control_zoom_out = $('.button.out');
     }
-    
+
 
     this.onImageDragStart = function () {}
-   
 
+   
     this.onImageDrag = function (x, y) {
 
       _self.moveLayer(x, y);
-
     }
   
+
     this.moveLayer = function (x, y) {
 
-     var move_x = (_self._offset.left || 0) - x, 
-        move_y = (_self._offset.top || 0) - y;
+     var move_x = ($current_layer[0]._offset.left || 0) - x, 
+        move_y = ($current_layer[0]._offset.top || 0) - y;
 
-      _self.changeLayerOffset(move_x, move_y);
+      _self.changeLayerOffset($current_layer, move_x, move_y);
 
-      _self._on_drag_stop_offset = {left: move_x, top: move_y};
+      $current_layer._on_drag_stop_offset = {left: move_x, top: move_y};
     }
 
-    this.changeLayerOffset = function (move_x, move_y) {
+
+    this.changeLayerOffset = function (layer, move_x, move_y) {
    
       if(supports_transitions) {
-     
-        $current_layer.css({transform: 'translate3d('+move_x+'px, '+move_y+'px, 0)'});
-     
+        layer.css({transform: 'translate3d('+move_x+'px, '+move_y+'px, 0)'});
      } else {
-     
-        $current_layer.css({
-         
+        layer.css({
           left: move_x, 
           top: move_y 
-      
         });
-    
       }
     }
+
 
     this.handleDoubleClick = function (e) {
       
       var viewport_width = $viewport.width();
       var viewport_height = $viewport.height(); 
       
-      console.log(_self._offset.left, _self._offset.top );
-      
-      var offset_x = _self._offset.left + viewport_width / 2 - e.pageX , 
-          offset_y = _self._offset.top + viewport_height / 2 - e.pageY   
+      var offset_x = $current_layer[0]._offset.left + viewport_width / 2 - e.pageX , 
+          offset_y = $current_layer[0]._offset.top + viewport_height / 2 - e.pageY   
       ;
     
-      _self.changeLayerOffset(offset_x, offset_y);
+      _self.changeLayerOffset($current_layer, offset_x, offset_y);
     
-      _self._offset.left = offset_x;
-      _self._offset.top = offset_y;
-
-    
+      $current_layer[0]._offset.left = offset_x;
+      $current_layer[0]._offset.top = offset_y;
     }
+
 
     this.onImageDragStop = function () {
       
-      _self._offset = _self._on_drag_stop_offset || _self._offset;
-      _self._on_drag_stop_offset = void 0;
+      $current_layer[0]._offset = $current_layer._on_drag_stop_offset || $current_layer[0]._offset;
+      $current_layer[0]._on_drag_stop_offset = void 0;
     }
+
+
+    this.handleClickZoomIn = function () {
+      console.log('in');
+      var next_layer;
+
+      if ($layers.length < $current_layer.index()+1) return;
+      
+      next_layer =  $layers[$current_layer.index() - 1 ];
+      _self.syncLayerPositions($current_layer[0], next_layer);
+      
+      $current_layer.hide();
+      $current_layer = $(next_layer);
+      $current_layer.show();
+
+      _self.changeLayerOffset($current_layer, $current_layer[0]._offset.left, $current_layer[0]._offset.top);
+
+    }
+
+
+    this.handleClickZoomOut = function () {
+    
+     // console.log('out');
+    }
+
+
+    this.syncLayerPositions = function (prev, next) {
+      
+      var 
+        prev_height = $(prev).data('height'),
+        prev_width = $(prev).data('width'),
+        next_height = $(next).data('height'),
+        next_width = $(next).data('width'), 
+        ratio_x = next_width / prev_width, 
+        ratio_y = next_height / prev_height
+      ;
+      
+      next._offset.left = parseInt( prev._offset.left * ratio_x ); 
+      next._offset.top = parseInt( prev._offset.top * ratio_y ); 
+      
+      console.log(prev_height, prev_width, next_height, next_width, ratio_x, ratio_y);
+    }
+
 
     this.bindEvents = function () {
 
@@ -164,7 +219,11 @@
          preventDefaultEvents: true
       }); 
       $touch_area.on('dblclick', _self.handleDoubleClick);
+
+      $control_zoom_in.on('click', _self.handleClickZoomIn);
+      $control_zoom_out.on('click', _self.handleClickZoomOut);
     }
+
 
     this.init = function () {
       $viewport = $(this[0]);
@@ -173,11 +232,16 @@
       this.bindEvents();
     }
 
+
     this.init();
     return this;
   };
 
 }( jQuery ));
+
+
+
+
 
 $(document).ready(function(){
   $('#image').zoom();  
