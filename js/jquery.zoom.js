@@ -183,35 +183,57 @@
       if ($layers.length < $current_layer.index()+1) return;
       
       next_layer =  $layers[$current_layer.index() - 1 ];
+      // _self.switchLayerTo(next_layer);
+     
       _self.syncLayerPositions($current_layer[0], next_layer);
-      
       $current_layer.hide();
       $current_layer = $(next_layer);
       $current_layer.show();
-
       _self.changeLayerOffset($current_layer, $current_layer[0]._offset.left, $current_layer[0]._offset.top);
+      // console.log($current_layer[0]._offset.left, $current_layer[0]._offset.top);
+    
     }
- 
+
+    // seems that i coded this so zoom out layer params flips on zoom out. 
+    // think this again ....
+
+
+    // this.switchLayerTo = function (next_layer) {
+
+    //   _self.syncLayerPositions($current_layer[0], next_layer);
+      
+    //   $current_layer.hide();
+    //   $current_layer = $(next_layer);
+    //   $current_layer.show();
+
+    //   _self.changeLayerOffset($current_layer, $current_layer[0]._offset.left, $current_layer[0]._offset.top);
+    // }
+
+
+
     this.handleClickZoomOut = function () {
       var next_layer;
 
-      //if ($current_layer.index()-1 < 0) return;
+      if ($layers.length <= $current_layer.index() +1) return;
       
       next_layer =  $layers[$current_layer.index() +1 ];
-      _self.syncLayerPositions(next_layer, $current_layer[0]);
       
-      $current_layer.hide();
-      $current_layer = $(next_layer);
-      $current_layer.show();
+      // if (true) {
 
-      _self.changeLayerOffset($current_layer, $current_layer[0]._offset.left, $current_layer[0]._offset.top);
+      //   _self.switchLayerTo(next_layer);
+     
+      // } else {
+
+        _self.syncLayerPositions(next_layer, $current_layer[0]);
+        
+        $current_layer.hide();
+        $current_layer = $(next_layer);
+        $current_layer.show();
+
+        _self.changeLayerOffset($current_layer, $current_layer[0]._offset.left, $current_layer[0]._offset.top);
+      // }
+    
     }
- 
-
-    this.switchLayer = function (layer_from, layer_to) {
-  
-    }
-
 
     this.syncLayerPositions = function (prev, next) {
       
@@ -225,11 +247,11 @@
         viewport_width = $viewport.width(),
         viewport_height = $viewport.height()
       ;
+      console.log(prev_height, prev_width, next_height, next_width, ratio_x, ratio_y, viewport_width, viewport_height);
       
       next._offset.left = parseInt( prev._offset.left * ratio_x - viewport_width / ratio_x); 
       next._offset.top = parseInt( prev._offset.top * ratio_y - viewport_height / ratio_y); 
       
-      console.log(prev_height, prev_width, next_height, next_width, ratio_x, ratio_y);
     }
 
 
@@ -261,9 +283,6 @@
   };
 
 }( jQuery ));
-
-
-
 
 
 $(document).ready(function(){
