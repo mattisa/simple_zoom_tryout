@@ -149,23 +149,31 @@
 
     this.handleDoubleClick = function (e) {
       
+      _self.centerToPosition(e.pageX, e.pageY)
+      _self.handleClickZoomIn();
+
+    }
+
+    this.centerToPosition = function (x, y) {
+
       var viewport_width = $viewport.width(),
           viewport_height = $viewport.height(),
-          offset_x = $current_layer[0]._offset.left + viewport_width / 2 - e.pageX , 
-          offset_y = $current_layer[0]._offset.top + viewport_height / 2 - e.pageY   
+          offset_x = $current_layer[0]._offset.left + viewport_width / 2 - x , 
+          offset_y = $current_layer[0]._offset.top + viewport_height / 2 - y   
         ;
     
       _self.changeLayerOffset($current_layer, offset_x, offset_y);
     
       $current_layer[0]._offset.left = offset_x;
       $current_layer[0]._offset.top = offset_y;
-    }
 
+
+    }
 
     this.onImageDragStop = function () {
       
       $current_layer[0]._offset = $current_layer._on_drag_stop_offset || $current_layer[0]._offset;
-      $current_layer[0]._on_drag_stop_offset = void 0;
+        $current_layer[0]._on_drag_stop_offset = void 0;
     }
 
 
@@ -184,9 +192,24 @@
       _self.changeLayerOffset($current_layer, $current_layer[0]._offset.left, $current_layer[0]._offset.top);
     }
  
+    this.handleClickZoomOut = function () {
+      var next_layer;
+
+      //if ($current_layer.index()-1 < 0) return;
+      
+      next_layer =  $layers[$current_layer.index() +1 ];
+      _self.syncLayerPositions(next_layer, $current_layer[0]);
+      
+      $current_layer.hide();
+      $current_layer = $(next_layer);
+      $current_layer.show();
+
+      _self.changeLayerOffset($current_layer, $current_layer[0]._offset.left, $current_layer[0]._offset.top);
+    }
+ 
 
     this.switchLayer = function (layer_from, layer_to) {
-
+  
     }
 
 
