@@ -36,10 +36,22 @@
       $touch_area,      // layer top of viewport. this prevents cursor to start drag single images
       $layers = [],
       $current_layer,    // reference to currently active image layer 
-      supports_transitions = Modernizr.csstransitions, // cached boolean that tells if browser supports transitions
+      
+      supports_transitions = cssTransitions(), // cached boolean that tells if browser supports transitions
       $control_zoom_in,
       $control_zoom_out
     ;
+
+
+    function cssTransitions() {
+      var thisBody = document.body || document.documentElement,
+        thisStyle = thisBody.style,
+      support = thisStyle.transition !== undefined || thisStyle.WebkitTransition !== undefined || thisStyle.MozTransition !== undefined || thisStyle.MsTransition !== undefined || thisStyle.OTransition !== undefined;
+    
+      return support; 
+    }
+
+
 
     this._offset = {top: 0, left:0};  // object that contains offset values for map while dragging is happening
 
