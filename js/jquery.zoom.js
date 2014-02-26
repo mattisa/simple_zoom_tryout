@@ -158,7 +158,6 @@
       }
     }
 
-
     this.handleDoubleClick = function (e) {
       
       _self.centerToPosition(e.pageX, e.pageY)
@@ -178,8 +177,6 @@
     
       $current_layer[0]._offset.left = offset_x;
       $current_layer[0]._offset.top = offset_y;
-
-
     }
 
     this.onImageDragStop = function () {
@@ -195,33 +192,14 @@
       if ($layers.length < $current_layer.index()+1) return;
       
       next_layer =  $layers[$current_layer.index() - 1 ];
-      // _self.switchLayerTo(next_layer);
      
       _self.syncLayerPositions($current_layer[0], next_layer);
       $current_layer.hide();
       $current_layer = $(next_layer);
       $current_layer.show();
       _self.changeLayerOffset($current_layer, $current_layer[0]._offset.left, $current_layer[0]._offset.top);
-      // console.log($current_layer[0]._offset.left, $current_layer[0]._offset.top);
     
     }
-
-    // seems that i coded this so zoom out layer params flips on zoom out. 
-    // think this again ....
-
-
-    // this.switchLayerTo = function (next_layer) {
-
-    //   _self.syncLayerPositions($current_layer[0], next_layer);
-      
-    //   $current_layer.hide();
-    //   $current_layer = $(next_layer);
-    //   $current_layer.show();
-
-    //   _self.changeLayerOffset($current_layer, $current_layer[0]._offset.left, $current_layer[0]._offset.top);
-    // }
-
-
 
     this.handleClickZoomOut = function () {
       var next_layer;
@@ -230,21 +208,14 @@
       
       next_layer =  $layers[$current_layer.index() +1 ];
       
-      // if (true) {
+      _self.syncLayerPositions(next_layer, $current_layer[0]);
+      
+      $current_layer.hide();
+      $current_layer = $(next_layer);
+      $current_layer.show();
 
-      //   _self.switchLayerTo(next_layer);
-     
-      // } else {
-
-        _self.syncLayerPositions(next_layer, $current_layer[0]);
-        
-        $current_layer.hide();
-        $current_layer = $(next_layer);
-        $current_layer.show();
-
-        _self.changeLayerOffset($current_layer, $current_layer[0]._offset.left, $current_layer[0]._offset.top);
-      // }
-    
+      _self.changeLayerOffset($current_layer, $current_layer[0]._offset.left, $current_layer[0]._offset.top);
+  
     }
 
     this.syncLayerPositions = function (prev, next) {
