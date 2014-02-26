@@ -1,17 +1,17 @@
 
 (function($) {
 
-  $.plugin('swipe', function() {
+  $.fn.swipe = function(options) {
 
-    var options = {
-      on_drag_start: function() {},
-      on_drag:        function() {},
-      on_drag_stop:  function() {},
-      useMouseEvents: true, 
-      preventDefaultEvents: true, 
-      debug: false
-    };
-    
+    var defaults = {
+          on_drag_start: function() {},
+          on_drag:        function() {},
+          on_drag_stop:  function() {},
+          useMouseEvents: true, 
+          preventDefaultEvents: true, 
+          debug: false
+        };
+        
     var $el,
         startX, 
         startY, 
@@ -26,49 +26,42 @@
         usePointEvents = false;
 
 
-    this.init = function(el) {
-      $el = $(el);
+    this.each( function (el) {
+      $el = $(this);
       usePointEvents = window.navigator.msPointerEnabled;
 
-      options = $.extend(options, this.options);
+      options = $.extend(defaults, options);
 
-      this.bind();
-    }
+      bind();
+    });
 
-    this.bind = function() {
+    function bind() {
       if (pluginBinded) {
         return;
       }
 
       if(usePointEvents) {
-        $el.on("MSPointerDown." + this.namespace, onTouchStart);
+        $el.on("MSPointerDown" + this.namespace, onTouchStart);
       } else {
-        $el.on('touchstart.' + this.namespace , onTouchStart);
+        $el.on('touchstart' , onTouchStart);
       }
       if(options.useMouseEvents) {
-        $el.on('mousedown.' + this.namespace , onTouchStart);
-        $el.on('mouseup.' + this.namespace, onTouchEnd);
+        $el.on('mousedown' , onTouchStart);
+        $el.on('mouseup', onTouchEnd);
       }
 
       pluginBinded = true;
     }
 
-    this.unbind = function() {
-
-      $el.off('touchstart.' + this.namespace);
-      $el.off('MSPointerDown.' + this.namespace);
-      pluginBinded = false;
-    }
-
     function cancelTouch() {
     
-      $el.off('touchmove.' + this.namespace);
-      $el.off('MSPointerMove.' + this.namespace);
-      $el.off('touchend.' + this.namespace);
-      $el.off('MSPointerUp.' + this.namespace);
+      $el.off('touchmove');
+      $el.off('MSPointerMove');
+      $el.off('touchend');
+      $el.off('MSPointerUp');
  
       if(options.useMouseEvents) {
-        $el.off('mousemove.' + this.namespace);
+        $el.off('mousemove');
       }
       
       startX = null;
@@ -93,8 +86,8 @@
       }
     }
     
-    var trackable = function(e) {
-      
+    function trackable(e) {
+
       if(e.originalEvent) {
         e = e.originalEvent;
       }
@@ -113,19 +106,18 @@
       isMoving = true;
 
       if(usePointEvents) {
-        $el.on('MSPointerMove.' + this.namespace, onTouchMove);
-        $el.on('MSPointerUp.' + this.namespace, onTouchEnd);
+        $el.on('MSPointerMove', onTouchMove);
+        $el.on('MSPointerUp', onTouchEnd);
       } else {
-        $el.on('touchmove.' + this.namespace, onTouchMove);
-        $el.on('touchend.' + this.namespace, onTouchEnd);
+        $el.on('touchmove', onTouchMove);
+        $el.on('touchend', onTouchEnd);
       }
      
       if(options.useMouseEvents) {
-        $el.on('mousemove.' + this.namespace, onTouchMove);
+        $el.on('mousemove', onTouchMove);
       }
       
       options.on_drag_start();
     }
-  });
-
+  };
 })(jQuery);

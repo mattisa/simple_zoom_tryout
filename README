@@ -1,0 +1,14 @@
+TODO: Just write some proper instructions :)
+
+// > brew install imagemagick
+// > gem install rmagick
+// > gem install tileup
+
+// RUN ON COMMAND LINE
+// > >tileup --in hightres.jpg --auto-zoom 4 --output-dir map_tiles
+// - > Opened hightres.jpg, 7712 x 4352
+// - > Tiling image into columns: 31, rows: 17
+// - > Tiling image into columns: 16, rows: 9
+// - > Tiling image into columns: 8, rows: 5
+// - > Tiling image into columns: 4, rows: 3
+// - > Finished.
